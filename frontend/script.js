@@ -1,7 +1,6 @@
-const isLocalFrontendServer = ["localhost", "127.0.0.1"].includes(window.location.hostname)
-  && window.location.port
-  && window.location.port !== "8000";
-const API_BASE_URL = window.location.protocol.startsWith("http") && !isLocalFrontendServer
+const isServedByBackend = window.location.protocol.startsWith("http")
+  && window.location.pathname.startsWith("/frontend");
+const API_BASE_URL = isServedByBackend
   ? window.location.origin
   : "http://127.0.0.1:8000";
 
@@ -93,6 +92,7 @@ function getManualPayload() {
     currency: getInputValue("currency"),
     travel_mode: getInputValue("travelMode"),
     stay_type: getInputValue("stayType"),
+    estimate_mode: getInputValue("estimateMode"),
     interests: getInputValue("interests")
       .split(",")
       .map((item) => item.trim())
@@ -138,7 +138,10 @@ async function generateTrip(event) {
         throw new Error("Write a trip prompt first.");
       }
 
-      const payload = { prompt };
+      const payload = {
+        prompt,
+        estimate_mode: getInputValue("estimateMode"),
+      };
       state.lastPayload = payload;
       itinerary = await postJson("/trip/generate-from-prompt", payload);
       links = await postJson("/trip/booking-links-from-prompt", payload);
@@ -223,6 +226,7 @@ function renderSummaryHero(trip) {
   const people = payload.people || extractPeople(trip.summary) || "TBD";
   const travelMode = payload.travel_mode || trip.travel_options?.[0]?.mode || "Travel";
   const stayType = payload.stay_type || trip.stay_options?.[0]?.type || "Stay";
+  const estimateMode = payload.estimate_mode || trip.estimate_mode || "quick";
 
   els.tripSummary.textContent = buildSummaryTitle(trip, payload, days);
   els.summarySubtitle.textContent = buildSummarySubtitle(trip, payload, people, stayType);
@@ -233,6 +237,7 @@ function renderSummaryHero(trip) {
     metricTemplate(iconUsers(), `${people} Travelers`),
     metricTemplate(iconRoute(), formatLabel(travelMode)),
     metricTemplate(iconBed(), `${formatLabel(stayType)} Stay`),
+    metricTemplate(iconSpark(), estimateMode === "agent" ? "Agent Plan" : "Quick Estimate"),
   ].join("");
 }
 
@@ -321,6 +326,14 @@ function iconBed() {
       <path d="M2 12h20"></path>
       <path d="M22 10v10"></path>
       <path d="M6 12V7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v5"></path>
+    </svg>
+  `;
+}
+
+function iconSpark() {
+  return `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M13 2 3 14h8l-1 8 11-14h-8l1-6Z"></path>
     </svg>
   `;
 }

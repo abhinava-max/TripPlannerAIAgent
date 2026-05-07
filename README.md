@@ -5,6 +5,7 @@ A FastAPI-powered AI travel planning application that generates practical itiner
 ## Features
 
 - AI-generated day-wise trip plans from either structured input or a natural-language prompt.
+- Two planning modes: a fast `Quick Estimate` path and a tool-informed `Agent Plan` path.
 - Budget estimates by currency, travel mode, stay type, trip length, and number of people.
 - Booking helper links for maps, routes, hotels, attractions, food, flights, trains, and buses.
 - External travel data endpoints for weather, geocoding, places, hotels, restaurants, flights, and exchange rates.
@@ -123,6 +124,17 @@ http://127.0.0.1:8000/docs
 | `CHROMA_DB_PATH` | No | Local ChromaDB directory. Defaults to `./chroma_db`. |
 | `POLICY_DOCS_PATH` | No | Policy docs directory relative to `backend/` unless absolute. Defaults to `policy_docs`. |
 | `POLICY_COLLECTION_NAME` | No | Chroma collection name. Defaults to `travel_policy_docs`. |
+| `AGENT_TOOL_DELAY_SECONDS` | No | Delay between agent mode tool/LLM calls. Defaults to `2.0`. |
+| `AGENT_TOOL_RETRIES` | No | Retry count for agent mode tool calls. Defaults to `1`. |
+
+## Planning Modes
+
+The trip generation endpoints support `estimate_mode`.
+
+- `quick`: fast default mode using built-in budget assumptions and one LLM itinerary generation call.
+- `agent`: premium-style mode that gathers compact weather, attraction, restaurant, hotel, and optional flight context before generating the plan. The LLM suggests budget assumptions from that compact context, while Python performs the final arithmetic.
+
+Agent mode is live-informed, not guaranteed live-priced. Some providers return place or flight movement data rather than bookable fares or hotel rates.
 
 ## API Overview
 
@@ -172,6 +184,7 @@ Request body:
   "currency": "INR",
   "travel_mode": "flight",
   "stay_type": "budget",
+  "estimate_mode": "quick",
   "interests": ["beaches", "nightlife", "food"]
 }
 ```
@@ -197,6 +210,7 @@ curl -X POST http://127.0.0.1:8000/trip/generate \
     "currency": "INR",
     "travel_mode": "flight",
     "stay_type": "budget",
+    "estimate_mode": "quick",
     "interests": ["beaches", "nightlife", "food"]
   }'
 ```
@@ -245,7 +259,10 @@ Response shape:
       "note": "string"
     }
   ],
-  "tips": ["string"]
+  "tips": ["string"],
+  "estimate_mode": "quick",
+  "context_used": [],
+  "warnings": []
 }
 ```
 
@@ -286,7 +303,8 @@ Request body:
 
 ```json
 {
-  "prompt": "Plan a relaxed 4 day Kerala trip from Mumbai for 2 people in August, budget 45000 INR, nature, food, scenic stays."
+  "prompt": "Plan a relaxed 4 day Kerala trip from Mumbai for 2 people in August, budget 45000 INR, nature, food, scenic stays.",
+  "estimate_mode": "agent"
 }
 ```
 

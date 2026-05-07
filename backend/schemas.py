@@ -30,10 +30,14 @@ class TripGenerateRequest(BaseModel):
     travel_mode: str = "any"
     stay_type: str = "budget"
     interests: List[str] = Field(default_factory=list)
+    estimate_mode: str = "quick"
+    source_airport_code: Optional[str] = None
+    destination_airport_code: Optional[str] = None
 
 
 class TripPromptRequest(BaseModel):
     prompt: str
+    estimate_mode: str = "quick"
 
 
 class BookingLink(BaseModel):
@@ -94,3 +98,6 @@ class TripGenerateResponse(BaseModel):
     travel_options: List[TravelOption]
     stay_options: List[StayOption]
     tips: List[str]
+    estimate_mode: str = "quick"
+    context_used: List[str] = Field(default_factory=list)
+    warnings: List[str] = Field(default_factory=list)

@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     POLICY_DOCS_PATH: str = "policy_docs"
     POLICY_COLLECTION_NAME: str = "travel_policy_docs"
 
+    AGENT_TOOL_DELAY_SECONDS: float = 2.0
+    AGENT_TOOL_RETRIES: int = 1
+
     model_config = SettingsConfigDict(
         env_file=".env",
         extra="ignore"

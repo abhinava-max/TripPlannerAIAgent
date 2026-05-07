@@ -156,3 +156,35 @@ def calculate_trip_budget(
         "total": total,
         "fits_budget": total <= budget,
     }
+
+
+def calculate_trip_budget_from_assumptions(
+    budget: int,
+    people: int,
+    days: int,
+    currency: str,
+    assumptions: dict,
+):
+    normalized_currency = normalize_currency(assumptions.get("currency") or currency)
+    nights = max(days - 1, 1)
+
+    travel = int(assumptions.get("travel_per_person") or 0) * people
+    stay = int(assumptions.get("stay_per_night") or 0) * nights
+    food = int(assumptions.get("food_per_person_per_day") or 0) * people * days
+    local_transport = int(assumptions.get("local_transport_per_day") or 0) * days
+    activities = int(assumptions.get("activities_per_person_per_day") or 0) * people * days
+    buffer_percent = float(assumptions.get("buffer_percent") or 10)
+    buffer = int((travel + stay + food + local_transport + activities) * (buffer_percent / 100))
+    total = travel + stay + food + local_transport + activities + buffer
+
+    return {
+        "currency": normalized_currency,
+        "travel": travel,
+        "stay": stay,
+        "food": food,
+        "local_transport": local_transport,
+        "activities": activities,
+        "buffer": buffer,
+        "total": total,
+        "fits_budget": total <= budget,
+    }
