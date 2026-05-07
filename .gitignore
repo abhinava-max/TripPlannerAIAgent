@@ -14,3 +14,9 @@ venv/
 
 # IDE
 .vscode/
+
+# Tutorial
+Tutorial.txt
+
+# Chroma DB
+**/chroma_db
