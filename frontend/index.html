@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Generate AI-powered trip plans with budgets, daily itineraries, stays, travel options, and practical tips.">
+  <title>Trip Planner AI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page-bg" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Trip Planner AI home">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 11.2 21 3l-8.2 18-2.2-7.6L3 11.2Z"></path>
+        </svg>
+      </span>
+      <span>Trip Planner AI</span>
+    </a>
+    <nav class="nav-links" aria-label="Page navigation">
+      <a href="#planner">Planner</a>
+      <a href="#results">Itinerary</a>
+      <a href="#features">Features</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero-section">
+      <div class="hero-media" aria-hidden="true"></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <p class="eyebrow">Premium AI travel planning</p>
+        <h1>Plan smarter trips in minutes.</h1>
+        <p class="hero-copy">Create a polished day-wise itinerary with budget, stays, routes, tips, warnings, and booking links from one simple prompt.</p>
+
+        <div class="hero-actions">
+          <a class="primary-link" href="#planner">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
+            Start planning
+          </a>
+          <a class="ghost-link" href="#results">View output</a>
+        </div>
+
+        <div class="hero-stats" aria-label="Planner highlights">
+          <div>
+            <strong>Day-wise</strong>
+            <span>clean itinerary cards</span>
+          </div>
+          <div>
+            <strong>Budget</strong>
+            <span>clear cost split</span>
+          </div>
+          <div>
+            <strong>Links</strong>
+            <span>maps, hotels, food</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="planner-layout" id="planner" aria-label="Trip planner workspace">
+      <aside class="planner-card">
+        <div class="card-topline">
+          <div>
+            <p class="eyebrow">Build your trip</p>
+            <h2>Tell us the vibe</h2>
+          </div>
+          <span class="status-pill" id="apiStatus">Ready</span>
+        </div>
+
+        <div class="mode-tabs" role="tablist" aria-label="Trip input mode">
+          <button class="tab-button active" id="promptTab" type="button" role="tab" aria-selected="true" aria-controls="promptSection">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"></path>
+            </svg>
+            Prompt
+          </button>
+          <button class="tab-button" id="manualTab" type="button" role="tab" aria-selected="false" aria-controls="manualSection">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 6h13"></path>
+              <path d="M8 12h13"></path>
+              <path d="M8 18h13"></path>
+              <path d="M3 6h.01"></path>
+              <path d="M3 12h.01"></path>
+              <path d="M3 18h.01"></path>
+            </svg>
+            Manual
+          </button>
+        </div>
+
+        <form id="tripForm" class="trip-form">
+          <section class="input-section active" id="promptSection" role="tabpanel" aria-labelledby="promptTab">
+            <label class="field field-wide" for="prompt">
+              <span>Trip prompt</span>
+              <textarea id="prompt" rows="8" placeholder="Plan a 5 day Goa trip from Ahmedabad for 2 people from June 10 to June 14, budget 25000 INR, flight preferred, budget stay, beaches, nightlife, and food."></textarea>
+            </label>
+            <div class="prompt-chips" aria-label="Prompt ideas">
+              <button type="button" data-example="Plan a relaxed 4 day Kerala trip from Mumbai for 2 people in August, budget 45000 INR, nature, food, scenic stays.">Kerala escape</button>
+              <button type="button" data-example="Plan a 6 day Japan trip from Delhi for 2 people in October, budget 250000 INR, trains, food, culture, clean hotels.">Japan culture</button>
+              <button type="button" data-example="Plan a 3 day Jaipur trip from Ahmedabad for 4 friends, budget 60000 INR, forts, cafes, local markets, boutique stay.">Jaipur weekend</button>
+            </div>
+          </section>
+
+          <section class="input-section" id="manualSection" role="tabpanel" aria-labelledby="manualTab">
+            <div class="form-grid">
+              <label class="field" for="source">
+                <span>Source</span>
+                <input id="source" type="text" value="Ahmedabad" autocomplete="address-level2">
+              </label>
+              <label class="field" for="destination">
+                <span>Destination</span>
+                <input id="destination" type="text" value="Goa" autocomplete="address-level2">
+              </label>
+              <label class="field" for="startDate">
+                <span>Start date</span>
+                <input id="startDate" type="date" value="2026-06-10">
+              </label>
+              <label class="field" for="endDate">
+                <span>End date</span>
+                <input id="endDate" type="date" value="2026-06-14">
+              </label>
+              <label class="field" for="budget">
+                <span>Budget</span>
+                <input id="budget" type="number" min="0" value="25000" inputmode="numeric">
+              </label>
+              <label class="field" for="currency">
+                <span>Currency</span>
+                <select id="currency">
+                  <option value="INR">INR</option>
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="GBP">GBP</option>
+                  <option value="AED">AED</option>
+                  <option value="SGD">SGD</option>
+                </select>
+              </label>
+              <label class="field" for="people">
+                <span>People</span>
+                <input id="people" type="number" min="1" value="2" inputmode="numeric">
+              </label>
+              <label class="field" for="travelMode">
+                <span>Travel mode</span>
+                <select id="travelMode">
+                  <option value="flight">Flight</option>
+                  <option value="train">Train</option>
+                  <option value="bus">Bus</option>
+                  <option value="car">Car</option>
+                  <option value="any">Any</option>
+                </select>
+              </label>
+              <label class="field" for="stayType">
+                <span>Stay type</span>
+                <select id="stayType">
+                  <option value="budget">Budget</option>
+                  <option value="standard">Standard</option>
+                  <option value="luxury">Luxury</option>
+                </select>
+              </label>
+              <label class="field field-wide" for="interests">
+                <span>Interests</span>
+                <input id="interests" type="text" value="beaches, nightlife, food">
+              </label>
+            </div>
+          </section>
+
+          <div class="actions">
+            <button class="primary-button" id="generateBtn" type="submit">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M13 2 3 14h8l-1 8 11-14h-8l1-6Z"></path>
+              </svg>
+              Generate itinerary
+            </button>
+            <button class="secondary-button" id="downloadBtn" type="button" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <path d="M7 10l5 5 5-5"></path>
+                <path d="M12 15V3"></path>
+              </svg>
+              Download
+            </button>
+          </div>
+        </form>
+      </aside>
+
+      <section class="results-panel" id="results" aria-live="polite">
+        <div class="loading-card hidden" id="loadingCard">
+          <div class="loader-wrap">
+            <div class="loader-ring"></div>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 11.2 21 3l-8.2 18-2.2-7.6L3 11.2Z"></path>
+            </svg>
+          </div>
+          <h2>Generating your trip plan</h2>
+          <p>Finding the best route, stays, budgets, and daily rhythm for your journey.</p>
+          <div class="loading-steps" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 18 2 22V6l7-4 6 4 7-4v16l-7 4-6-4Z"></path>
+              <path d="M9 2v16"></path>
+              <path d="M15 6v16"></path>
+            </svg>
+          </div>
+          <p class="eyebrow">Your itinerary workspace</p>
+          <h2>A beautiful trip plan will appear here.</h2>
+          <p>Use the form to generate summary cards, day-wise plans, budget breakdowns, travel options, stays, links, and practical warnings.</p>
+        </div>
+
+        <div class="result-content hidden" id="resultContent">
+          <section class="result-hero">
+            <div class="summary-copy">
+              <p class="eyebrow">Trip Summary</p>
+              <h2 id="tripSummary">Trip summary</h2>
+              <p id="summarySubtitle">Your compact itinerary overview will appear here.</p>
+            </div>
+            <div class="summary-metrics" id="summaryMetrics"></div>
+          </section>
+
+          <section class="result-section">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Costs</p>
+                <h3>Budget Breakdown</h3>
+              </div>
+              <span class="budget-fit" id="budgetFit"></span>
+            </div>
+            <div class="budget-grid" id="budgetGrid"></div>
+          </section>
+
+          <section class="result-section">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Schedule</p>
+                <h3>Day-wise Itinerary</h3>
+              </div>
+            </div>
+            <div class="day-list" id="dayList"></div>
+          </section>
+
+          <section class="split-section">
+            <div class="result-section">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Routes</p>
+                  <h3>Travel Options</h3>
+                </div>
+              </div>
+              <div class="stack-list" id="travelOptions"></div>
+            </div>
+
+            <div class="result-section">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Hotels</p>
+                  <h3>Stay Options</h3>
+                </div>
+              </div>
+              <div class="stack-list" id="stayOptions"></div>
+            </div>
+          </section>
+
+          <section class="result-section">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Next steps</p>
+                <h3>Booking & Location Links</h3>
+              </div>
+            </div>
+            <div class="link-grid" id="bookingLinks"></div>
+          </section>
+
+          <section class="result-section warning-section">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Heads up</p>
+                <h3>Tips & Warnings</h3>
+              </div>
+            </div>
+            <ul class="tips-list" id="tipsList"></ul>
+          </section>
+        </div>
+      </section>
+    </section>
+
+    <section class="feature-strip" id="features" aria-label="Planner features">
+      <article>
+        <span>01</span>
+        <h3>Prompt or manual</h3>
+        <p>Start loose with natural language or fine tune every trip detail.</p>
+      </article>
+      <article>
+        <span>02</span>
+        <h3>Readable results</h3>
+        <p>AI output is transformed into clean, scannable cards and sections.</p>
+      </article>
+      <article>
+        <span>03</span>
+        <h3>Actionable links</h3>
+        <p>Jump quickly to maps, hotels, food, transport, and activities.</p>
+      </article>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
